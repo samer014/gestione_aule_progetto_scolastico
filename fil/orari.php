@@ -1,7 +1,11 @@
 <?php
 			session_start();
 			$user=$_SESSION["username"]??"";
-
+			$user=$_SESSION["username"]??"";
+			if ($user==""){
+				header('Location: login.php');
+				exit();
+			}
 			ini_set('display_errors', 'On');
 			error_reporting(E_ALL);
 			include "./db_connect.php";

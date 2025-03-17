@@ -11,7 +11,6 @@
 	
 	if ($user==""){ //utente non loggato
 		print("<a href=\"login.php\">LOGIN</a><br>");+
-		print("<a href=\"register.php\">SIGNUP</a>");
 		exit(0);
 	}else{
 		$query = "SELECT amministratore FROM utenti WHERE username = :user";
