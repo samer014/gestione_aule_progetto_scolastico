@@ -26,10 +26,12 @@
 				print("<a href=\"creaUtente.php\">CREA UTENTE</a><br>");
 				print("<a href=\"prenota.php\">PRENOTA AULE</a><br>");
 				print("<a href=\"orari.php\">MODIFICA ORARI</a><br>");
+				print("<a href=\"richieste.php\">VISUALIZZA RICHIESTE</a><br>");
 			}else { // se utente normale
 				print("<h3> Bentornato $user </h3>");
 				print("<a href=\"logout.php\">LOGOUT</a><br>");
 				print("<a href=\"prenota.php\">PRENOTA AULE</a><br>");
+				print("<a href=\"prenotazioni.php\">LE MIE PRENOTAZIONI</a><br>");
 			}
 		} catch(PDOException $ex) {
 			print($ex);
