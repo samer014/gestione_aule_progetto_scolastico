@@ -1,18 +1,18 @@
 <?php
-			session_start();
-			$user=$_SESSION["username"]??"";
-			$user=$_SESSION["username"]??"";
-			if ($user==""){
-				header('Location: login.php');
-				exit();
-			}
-			ini_set('display_errors', 'On');
-			error_reporting(E_ALL);
-			include "./db_connect.php";
+	session_start();
+	$user=$_SESSION["username"]??"";
+	$user=$_SESSION["username"]??"";
+	if ($user != "adm"){
+		header('Location: index.php');
+		exit();
+	}
+	ini_set('display_errors', 'On');
+	error_reporting(E_ALL);
+	include "./db_connect.php";
 ?>
 <?php
 	$ora = $_POST['ora'];
-	$query = "SELECT oraInizio FROM orari WHERE ora = :ora;";
+	$query = "SELECT oraInizio FROM orari WHERE ora = :ora;"; // seleziona l'orario da modificare
 	
 	try {
 		$stmt = $con->prepare( $query );
@@ -42,5 +42,5 @@
 		);
 	}
 	print("</table><br>\n");
-	print("<a href=\"orari.php\">Annulla</a><br>");
+	print("<a href=\"orari.php\">Annulla</a><br>"); //annulla modifiche
 ?>
