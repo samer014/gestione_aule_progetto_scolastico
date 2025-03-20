@@ -10,7 +10,7 @@
 <?php
 	
 	if ($user==""){ //utente non loggato
-		print("<a href=\"login.php\">LOGIN</a><br>");+
+		print("<a href=\"login.php\">LOGIN</a><br>");
 		exit(0);
 	}else{
 		$query = "SELECT amministratore FROM utenti WHERE username = :user";
@@ -21,17 +21,18 @@
 			
 			$row = $stmt->fetch(PDO::FETCH_ASSOC);
 			if ($row["amministratore"] == 1){ //se amministratore può aggiungere utenti
-				print("<h3> Bentornato Boss </h3>");
-				print("<a href=\"logout.php\">LOGOUT</a><br>");
-				print("<a href=\"creaUtente.php\">CREA UTENTE</a><br>");
-				print("<a href=\"prenota.php\">PRENOTA AULE</a><br>");
-				print("<a href=\"orari.php\">MODIFICA ORARI</a><br>");
-				print("<a href=\"richieste.php\">VISUALIZZA RICHIESTE</a><br>");
+				print("<h3> Bentornato Boss </h3>"); //messaggio di bentornato
+				print("<a href=\"logout.php\">LOGOUT</a><br>"); //termina sessione
+				print("<a href=\"creaUtente.php\">CREA UTENTE</a><br>"); //crea un nuovo utente
+				print("<a href=\"prenota.php\">PRENOTA AULE</a><br>"); //collegamento alla pagina di prenotazione delle aule
+				print("<a href=\"orari.php\">MODIFICA ORARI</a><br>"); //modifica degli orari
+				print("<a href=\"richieste.php\">VISUALIZZA RICHIESTE</a><br>"); //collegamento per visualizzare e accettare o rifiutare le richieste
+				//print("<a href=\"prenotazioni.php\">LE MIE PRENOTAZIONI</a><br>"); //collegamento alla pagina per visualizzare le mie prenotazioni
 			}else { // se utente normale
-				print("<h3> Bentornato $user </h3>");
-				print("<a href=\"logout.php\">LOGOUT</a><br>");
-				print("<a href=\"prenota.php\">PRENOTA AULE</a><br>");
-				print("<a href=\"prenotazioni.php\">LE MIE PRENOTAZIONI</a><br>");
+				print("<h3> Bentornato $user </h3>"); //messaggio di bentornato
+				print("<a href=\"logout.php\">LOGOUT</a><br>"); //termina sessione
+				print("<a href=\"prenota.php\">PRENOTA AULE</a><br>"); //collegamento alla pagina di prenotazione delle aule
+				//print("<a href=\"prenotazioni.php\">LE MIE PRENOTAZIONI</a><br>"); //collegamento alla pagina per visualizzare le mie prenotazioni
 			}
 		} catch(PDOException $ex) {
 			print($ex);

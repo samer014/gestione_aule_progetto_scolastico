@@ -1,14 +1,14 @@
 <?php
-			session_start();
-			$user=$_SESSION["username"]??"";
-			$user=$_SESSION["username"]??"";
-			if ($user==""){
-				header('Location: login.php');
-				exit();
-			}
-			ini_set('display_errors', 'On');
-			error_reporting(E_ALL);
-			include "./db_connect.php";
+	session_start();
+	$user=$_SESSION["username"]??"";
+	$user=$_SESSION["username"]??"";
+	if ($user != "adm"){
+		header('Location: index.php');
+		exit();
+	}
+	ini_set('display_errors', 'On');
+	error_reporting(E_ALL);
+	include "./db_connect.php";
 ?>
 <html>
 	<head>
@@ -33,9 +33,9 @@
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			print("<tr>".
 				"<td>".$row['ora']."</td>\n".
-				"<td>".$row['oraInizio']."</td>\n".
+				"<td>".$row['oraInizio']."</td>\n". //visualizzazione orari attuali
 				"<td>".
-					"<form action='modificaOrari.php' method='post'>".
+					"<form action='modificaOrari.php' method='post'>". //modifica orari attuali
 						"<a href='modificaOrari.php'><button class='fixed-button' value=".$row['ora']." name='ora'>Modifica</button></a>".
 					"</form>".
 				"</td>".

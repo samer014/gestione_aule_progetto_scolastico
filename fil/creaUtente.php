@@ -2,8 +2,9 @@
 <?php
 	session_start();
 	$user=$_SESSION["username"]??"";
-	if ($user==""){
-		header('Location: login.php');
+	$user=$_SESSION["username"]??"";
+	if ($user != "adm"){
+		header('Location: index.php');
 		exit();
 	}
 	ini_set('display_errors', 'On');
@@ -11,10 +12,10 @@
 	include "./db_connect.php";
 ?>
 
-<?php // inserisci l'username e password del nuovo utente
+<?php 
 	print("<tr>".
 			"<td>Inserisci nome e password</td>\n".
-			"<form action='doCreaUtente.php' method='post'>".
+			"<form action='doCreaUtente.php' method='post'>". // inserisci l'username e password del nuovo utente
 				"<td><input name='newUser'></td>\n".
 				"<td><input name='newPass'></td>\n".
 				"<td>".
