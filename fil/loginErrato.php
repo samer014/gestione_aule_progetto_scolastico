@@ -9,8 +9,8 @@
 			error_reporting(E_ALL);
 		?>
 		<form action='doLogin.php' method='post' >
-			Username<input type='text' name='username' /><br>
-			Password <input type='password' name='password' /><br>
+			<input placeholder='username' type='text' name='username' /><br>
+			<input placeholder='password' type='password' name='password' /><br>
 			<input type ='submit' value='ok'>
 		</form>
 		<a href="index.php">Home</a>
