@@ -47,11 +47,18 @@ $giornoIngl = array(
 
 $t=time(); //Data corrente
 $day = date("d",$t); //Ricava giorno corrente
-$month = date("m",$t); //Ricava mese corrente
-$month = (int)$month;
-$year = date("Y",$t); //Ricava anno corrente
+$month = isset($_GET['month']) ? (int)$_GET['month'] : date("m", $t); // Ricava mese corrente, ma lo prende da $_GET se presente con isset si guarda se esiste month nel get
+$year = isset($_GET['year']) ? (int)$_GET['year'] : date("Y", $t); // Ricava l'anno corrente
 
-print("<button onclick=" . "\"" . $month++ "\"" . "> -> </button>");
+// Mostra il pulsante per il mese successivo
+$nextMonth = $month == 12 ? 1 : $month + 1; // nextMonth se è dicembre(12) sarà Gennaio(1) sennò sarà il prossimo incremetando di 1
+$nextYear = $month == 12 ? $year + 1 : $year; // nextYear se il mese è dicembre(12), l'anno sarà +1 sennò resta invariato
+$prevMonth = $month == 1 ? 12 : $month - 1; //prevMonth se è gennaio(1) allora diventa dicembre(12) sennò -1
+$prevYear = $month == 1 ? $year - 1 : $year; // prevYear se il mese è gennaio(1), l'anno sarà -1 sennò resta invariato
+
+print("<a href='?month=$prevMonth&year=$prevYear'><button><-</button></a>"); // Pulsante mese precedente
+print("<a href='?month=$nextMonth&year=$nextYear'><button>-></button></a>"); // Pulsante mese successivo
+
 $totGiorni = cal_days_in_month(CAL_GREGORIAN, $month, $year);
 print($month);
 print("<h1>" . $mese[$month] . " " . $year . "</h1> \n"); // stampa il mese e anno corrente
