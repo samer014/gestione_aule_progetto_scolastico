@@ -56,12 +56,16 @@ $nextYear = $month == 12 ? $year + 1 : $year; // nextYear se il mese è dicembre
 $prevMonth = $month == 1 ? 12 : $month - 1; //prevMonth se è gennaio(1) allora diventa dicembre(12) sennò -1
 $prevYear = $month == 1 ? $year - 1 : $year; // prevYear se il mese è gennaio(1), l'anno sarà -1 sennò resta invariato
 
+$totGiorni = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+
+print("<table>");
+print("<tr>");
+
+print("<h1>" . $mese[$month] . " " . $year . "</h1> \n"); // stampa il mese e anno corrente
+
 print("<a href='?month=$prevMonth&year=$prevYear'><button><-</button></a>"); // Pulsante mese precedente
 print("<a href='?month=$nextMonth&year=$nextYear'><button>-></button></a>"); // Pulsante mese successivo
 
-$totGiorni = cal_days_in_month(CAL_GREGORIAN, $month, $year);
-print($month);
-print("<h1>" . $mese[$month] . " " . $year . "</h1> \n"); // stampa il mese e anno corrente
 print("<table> \n");
 print("<tr> \n");
 for($i=0; $i<7; $i++){ //ciclo for che aggiunge i giorni della settimana
@@ -80,7 +84,7 @@ for($r=0; $r<6; $r++){
 		}else{
 			$trovaGSett = true;
 			if($giorniM <= $totGiorni){
-				print("<td>" . $giorniM . "</td>\n");
+				print("<td> <button>" . $giorniM . "</button> </td>\n");
 				$giorniM++;
 			}
 		}
@@ -88,4 +92,15 @@ for($r=0; $r<6; $r++){
 	print("<tr>\n");
 }
 print("</table>");
+
+print("</tr>");
+
+print("<tr>");
+
+
+
+print("</tr>");
+
+print("</table>");
+
 ?>
