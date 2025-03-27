@@ -47,38 +47,60 @@ $giornoIngl = array(
 
 $t=time(); //Data corrente
 $day = date("d",$t); //Ricava giorno corrente
-$month = date("m",$t); //Ricava mese corrente
-$month = (int)$month;
-$year = date("Y",$t); //Ricava anno corrente
+$month = isset($_GET['month']) ? (int)$_GET['month'] : date("m", $t); // Ricava mese corrente, ma lo prende da $_GET se presente con isset si guarda se esiste month nel get
+$year = isset($_GET['year']) ? (int)$_GET['year'] : date("Y", $t); // Ricava l'anno corrente
 
-print("<button onclick=" . "\"" . $month++ "\"" . "> -> </button>");
+// Mostra il pulsante per il mese successivo
+$nextMonth = $month == 12 ? 1 : $month + 1; // nextMonth se è dicembre(12) sarà Gennaio(1) sennò sarà il prossimo incremetando di 1
+$nextYear = $month == 12 ? $year + 1 : $year; // nextYear se il mese è dicembre(12), l'anno sarà +1 sennò resta invariato
+$prevMonth = $month == 1 ? 12 : $month - 1; //prevMonth se è gennaio(1) allora diventa dicembre(12) sennò -1
+$prevYear = $month == 1 ? $year - 1 : $year; // prevYear se il mese è gennaio(1), l'anno sarà -1 sennò resta invariato
+
 $totGiorni = cal_days_in_month(CAL_GREGORIAN, $month, $year);
-print($month);
-print("<h1>" . $mese[$month] . " " . $year . "</h1> \n"); // stampa il mese e anno corrente
-print("<table> \n");
-print("<tr> \n");
-for($i=0; $i<7; $i++){ //ciclo for che aggiunge i giorni della settimana
-	print("<td>" . $giorno[$i] . "</td> \n");
-}
-print("</tr>\n");
 
-$cal = calendario($month,$year);
-$trovaGSett = false;
-$giorniM = 1;
-for($r=0; $r<6; $r++){
-	print("<tr>\n");
-	for($c=0; $c<7; $c++){
-		if($cal["dayname"]!= $giornoIngl[$c] && $trovaGSett == false){
-			print("<td></td>\n");
-		}else{
-			$trovaGSett = true;
-			if($giorniM <= $totGiorni){
-				print("<td>" . $giorniM . "</td>\n");
-				$giorniM++;
-			}
-		}
-	}
-	print("<tr>\n");
+//Creazione tabella
+print("<table>");
+	print("<tr>");
+
+		print("<h1>" . $mese[$month] . " " . $year . "</h1> \n"); // stampa il mese e anno corrente
+
+		print("<a href='?month=$prevMonth&year=$prevYear'><button><-</button></a>"); // Pulsante mese precedente
+		print("<a href='?month=$nextMonth&year=$nextYear'><button>-></button></a>"); // Pulsante mese successivo
+
+		print("<table> \n");
+			print("<tr> \n");
+				for($i=0; $i<7; $i++){ //ciclo for che aggiunge i giorni della settimana
+				print("<td>" . $giorno[$i] . "</td> \n");
 }
+			print("</tr>\n");
+
+			$cal = calendario($month,$year);
+			$trovaGSett = false;
+			$giorniM = 1;
+			for($r=0; $r<6; $r++){
+				print("<tr>\n");
+					for($c=0; $c<7; $c++){
+						if($cal["dayname"]!= $giornoIngl[$c] && $trovaGSett == false){
+							print("<td></td>\n");
+						}else{
+							$trovaGSett = true;
+							if($giorniM <= $totGiorni){
+								print("<td> <button>" . $giorniM . "</button> </td>\n");
+									$giorniM++;
+							}
+						}
+					}
+				print("<tr>\n");
+			}
+		print("</table>");
+	print("</tr>");
+
+	print("<tr>");
+
+
+
+	print("</tr>");
+
 print("</table>");
+
 ?>
