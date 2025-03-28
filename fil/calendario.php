@@ -58,49 +58,54 @@ $prevYear = $month == 1 ? $year - 1 : $year; // prevYear se il mese è gennaio(1
 
 $totGiorni = cal_days_in_month(CAL_GREGORIAN, $month, $year);
 
+//Creazione tabella
 print("<table>");
-print("<tr>");
+	print("<tr>");
+		print("<td>");
+			print("<a href='?month=$prevMonth&year=$prevYear'><button><-</button></a>"); // Pulsante mese precedente
+			print("<a href='?month=$nextMonth&year=$nextYear'><button>-></button></a>"); // Pulsante mese successivo
+			print("<h1>" . $mese[$month] . " " . $year . "</h1> \n"); // stampa il mese e anno corrente
+			print("<table> \n");
+				print("<tr> \n");
+					for($i=0; $i<7; $i++){ //ciclo for che aggiunge i giorni della settimana
+						print("<td>" . $giorno[$i] . "</td> \n");
+					}
+				print("</tr>\n");
+				$cal = calendario($month,$year);
+				$trovaGSett = false;
+				$giorniM = 1;
+				for($r=0; $r<6; $r++){
+					print("<tr>\n");
+						for($c=0; $c<7; $c++){
+							if($cal["dayname"]!= $giornoIngl[$c] && $trovaGSett == false){
+								print("<td></td>\n");
+							}else{
+								$trovaGSett = true;
+								if($giorniM <= $totGiorni){
+									print("<td> <button>" . $giorniM . "</button> </td>\n");
+										$giorniM++;
+								}
+							}
+						}
+					print("<tr>\n");
+				}
+			print("</table>");
+		print("</td>");
 
-print("<h1>" . $mese[$month] . " " . $year . "</h1> \n"); // stampa il mese e anno corrente
+		print("<td>");
+		
+		print("<form action='#'>");
+		  print("
+		  <select size=4>".
+			"<option value='javascript'>JavaScript</option>".
+			"<option value='php'>PHP</option>".
+		  "</select>".
+		  "<input type='submit' value='Submit'/>");
+		print("</form>");
 
-print("<a href='?month=$prevMonth&year=$prevYear'><button><-</button></a>"); // Pulsante mese precedente
-print("<a href='?month=$nextMonth&year=$nextYear'><button>-></button></a>"); // Pulsante mese successivo
-
-print("<table> \n");
-print("<tr> \n");
-for($i=0; $i<7; $i++){ //ciclo for che aggiunge i giorni della settimana
-	print("<td>" . $giorno[$i] . "</td> \n");
-}
-print("</tr>\n");
-
-$cal = calendario($month,$year);
-$trovaGSett = false;
-$giorniM = 1;
-for($r=0; $r<6; $r++){
-	print("<tr>\n");
-	for($c=0; $c<7; $c++){
-		if($cal["dayname"]!= $giornoIngl[$c] && $trovaGSett == false){
-			print("<td></td>\n");
-		}else{
-			$trovaGSett = true;
-			if($giorniM <= $totGiorni){
-				print("<td> <button>" . $giorniM . "</button> </td>\n");
-				$giorniM++;
-			}
-		}
-	}
-	print("<tr>\n");
-}
-print("</table>");
-
-print("</tr>");
-
-print("<tr>");
-
-
-
-print("</tr>");
-
+		print("</td>");
+	
+	print("</tr>");
 print("</table>");
 
 ?>
