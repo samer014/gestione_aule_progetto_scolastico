@@ -106,8 +106,10 @@
                 "<td>".$row['ora']."</td>\n".
                 "<td>".$row['oraInizio']."</td>\n".
                 "<td>".
-                    "<form action='modificaOrari.php' method='post'>".
-                        "<a href='modificaOrari.php'><button class='fixed-button' value=".$row['ora']." name='ora'>Modifica</button></a>".
+                    "<form method='post'>".
+                        "<input type='hidden' name='orario_inizio' value='".htmlspecialchars($orario_inizio)."'>".
+                        "<input type='hidden' name='orario_fine' value='".htmlspecialchars($orario_fine)."'>".
+                        "<button class='fixed-button' value='".htmlspecialchars($row['ora'])."' name='seleziona_aula'>Seleziona</button>".
                     "</form>".
                 "</td>".
                 "</tr>\n");
@@ -115,6 +117,38 @@
         echo "</table> <br><br>";
         print("<a href='index.php'> Home </a>");
     }
+    ?>
+
+    <?php
+        function selezionaAula($orario_inizio, $orario_fine) {
+            include "./db_connect.php";
+            $query = "SELECT aula FROM prenotazioni WHERE oraInizio = :orario_inizio AND oraFine = :orario_fine;";
+            try {
+            $stmt = $con->prepare($query);
+            $stmt->bindParam(':orario_inizio', $orario_inizio);
+            $stmt->bindParam(':orario_fine', $orario_fine);
+            $stmt->execute();
+            $aule = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $aule;
+            } catch (PDOException $ex) {
+            print("Errore: " . $ex->getMessage());
+            exit;
+            }
+        }
+
+        if (isset($_POST['seleziona_aula'])) {
+            $orario_inizio = $_POST['orario_inizio'];
+            $orario_fine = $_POST['orario_fine'];
+            $auleDisponibili = selezionaAula($orario_inizio, $orario_fine);
+
+            echo "<h2>Aule disponibili:</h2>";
+            echo "<ul>";
+            foreach ($auleDisponibili as $aula) {
+            echo "<li>" . htmlspecialchars($aula['aula']) . "</li>";
+            }
+            echo "</ul>";
+        }
+
     ?>
 
 </body>
