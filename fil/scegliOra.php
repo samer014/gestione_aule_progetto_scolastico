@@ -6,6 +6,19 @@
 </head>
 <body>
 
+    <?php
+        if (isset($_GET['day'], $_GET['month'], $_GET['year'])) {
+            $day = $_GET['day'];
+            $month = $_GET['month'];
+            $year = $_GET['year'];
+
+            $day = str_pad($day, 2, "0", STR_PAD_LEFT);
+            $month = str_pad($month, 2, "0", STR_PAD_LEFT);
+
+            print($day . $month . $year);
+        }
+    ?>
+
     <form method="post" action="">
         <label for="orario_inizio">Seleziona un orario scolastico da:</label>
         <select id="orario_inizio" name="orario_inizio">
@@ -43,6 +56,7 @@
     <?php
     if (isset($_POST['conferma'])) {
         $orario_inizio = $_POST['orario_inizio'];
+        print($orario_inizio);
         $orario_fine = $_POST['orario_fine'];
 
         // conversione in datetime per verificare che l'orario fine sia minore di orario inizo
