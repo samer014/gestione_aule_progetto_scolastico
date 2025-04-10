@@ -23,7 +23,7 @@
 				print("<h3> Bentornato Boss </h3>"); //messaggio di bentornato
 				print("<a href=\"logout.php\">LOGOUT</a><br>"); //termina sessione
 				print("<a href=\"creaUtente.php\">CREA UTENTE</a><br>"); //crea un nuovo utente
-				print("<a href=\"prenota.php\">PRENOTA AULE</a><br>"); //collegamento alla pagina di prenotazione delle aule
+				print("<a href=\"calendario.php\">PRENOTA AULE</a><br>"); //collegamento alla pagina di prenotazione delle aule
 				print("<a href=\"orari.php\">MODIFICA ORARI</a><br>"); //modifica degli orari
 				print("<a href=\"richieste.php\">VISUALIZZA RICHIESTE</a><br>"); //collegamento per visualizzare e accettare o rifiutare le richieste
 				print("<a href=\"indexAule.php\">GESTIONE AULE</a><br>"); //collegamento per rimuovere/aggiungere aule dal DB, aggiunta note alle aule
