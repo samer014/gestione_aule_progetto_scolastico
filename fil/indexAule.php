@@ -55,7 +55,7 @@
     }
 	
 	
-	print("<h3>Inserisci note</h3>");
+	print("<h3>Inserisci o rimuovi note</h3>");
 	print("<form action='doInserisciNote.php' method='post'>");
 	print("<input placeholder='note' type='text' name='note'>");
     print("<table>");
@@ -68,7 +68,5 @@
 	print("<button type='submit'>Aggiungi</button>");
 	print("</form>");
     print("</table><br><br>");
-	//inserisci e cancella note di un aula
-	//cambia nome aula
 	print("<a href='index.php'>Home</a>");
 ?>

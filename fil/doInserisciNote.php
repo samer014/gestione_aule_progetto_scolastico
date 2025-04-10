@@ -15,17 +15,27 @@
 	$note = $_POST['note']??"";
 	print($aula);
 	print($note);
-	/*
-	$query = "UPDATE aule SET note = :note WHERE nome = :aula;";
-	
-	try {
+	if($note==""){
+		$query = "UPDATE aule SET note = NULL WHERE nome = :aula;";
+		try {
+		$stmt = $con->prepare( $query );
+		$stmt->bindParam(':aula', $aula, PDO::PARAM_STR);
+		$stmt->execute();
+		} catch(PDOException $ex) {
+			print($ex);
+			exit();
+		}
+	}else{
+		$query = "UPDATE aule SET note = :note WHERE nome = :aula;";
+		try {
 		$stmt = $con->prepare( $query );
 		$stmt->bindParam(':aula', $aula, PDO::PARAM_STR);
 		$stmt->bindParam(':note', $note, PDO::PARAM_STR);
 		$stmt->execute();
-	} catch(PDOException $ex) {
-		print($ex);
-		exit();
+		} catch(PDOException $ex) {
+			print($ex);
+			exit();
+		}
 	}
-	header('Location: indexAule.php');*/
+	header('Location: indexAule.php');
 ?>

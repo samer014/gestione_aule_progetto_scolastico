@@ -56,4 +56,5 @@
 		echo "</table> <br><br>";
 	}
 	print("<a href='index.php'> Home </a>"); //ritorno all'index
+	//onclick='window.location.reload(true);'
 ?>

@@ -94,5 +94,5 @@ print("<table> \n");
 		print("<tr>\n");
 	}
 print("</table>");
-print("<a href='index.php'> Home </a>");
+
 ?>
