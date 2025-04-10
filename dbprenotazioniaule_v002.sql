@@ -1,5 +1,5 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
+-- Host:                         localhost
 -- Versione server:              10.4.28-MariaDB - mariadb.org binary distribution
 -- S.O. server:                  Win64
 -- HeidiSQL Versione:            12.10.0.7000
@@ -130,6 +130,16 @@ INSERT INTO `aule` (`nome`, `note`) VALUES
 	('P053', NULL),
 	('P072', NULL);
 
+-- Dump della struttura di tabella dbprenotazioniaule.aulelibere
+CREATE TABLE IF NOT EXISTS `aulelibere` (
+  `aula` char(4) NOT NULL,
+  `lista_orari_disponibili` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`lista_orari_disponibili`)),
+  PRIMARY KEY (`aula`),
+  CONSTRAINT `aulelibere_ibfk_1` FOREIGN KEY (`aula`) REFERENCES `aule` (`nome`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- Dump dei dati della tabella dbprenotazioniaule.aulelibere: ~0 rows (circa)
+
 -- Dump della struttura di tabella dbprenotazioniaule.orari
 CREATE TABLE IF NOT EXISTS `orari` (
   `ora` int(11) NOT NULL,
@@ -166,9 +176,12 @@ CREATE TABLE IF NOT EXISTS `prenotazioni` (
   CONSTRAINT `prenotazioni_ibfk_1` FOREIGN KEY (`aula`) REFERENCES `aule` (`nome`),
   CONSTRAINT `prenotazioni_ibfk_2` FOREIGN KEY (`IdUtente`) REFERENCES `utenti` (`id`),
   CONSTRAINT `prenotazioni_ibfk_3` FOREIGN KEY (`IdAmministratore`) REFERENCES `utenti` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dump dei dati della tabella dbprenotazioniaule.prenotazioni: ~0 rows (circa)
+-- Dump dei dati della tabella dbprenotazioniaule.prenotazioni: ~2 rows (circa)
+INSERT INTO `prenotazioni` (`id`, `dataPrenotazione`, `accettata`, `oraInizio`, `oraFine`, `dataEsito`, `aula`, `IdUtente`, `IdAmministratore`) VALUES
+	(1, '2025-03-17 11:11:21', NULL, '2025-03-19 08:00:00', '2025-03-19 08:50:00', NULL, 'L247', 4, NULL),
+	(2, '2025-03-20 12:16:18', NULL, '2025-03-20 08:50:00', '2025-03-20 09:50:00', NULL, 'A314', 5, NULL);
 
 -- Dump della struttura di tabella dbprenotazioniaule.utenti
 CREATE TABLE IF NOT EXISTS `utenti` (
@@ -177,14 +190,15 @@ CREATE TABLE IF NOT EXISTS `utenti` (
   `password` varchar(30) NOT NULL,
   `amministratore` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
--- Dump dei dati della tabella dbprenotazioniaule.utenti: ~4 rows (circa)
+-- Dump dei dati della tabella dbprenotazioniaule.utenti: ~5 rows (circa)
 INSERT INTO `utenti` (`id`, `username`, `password`, `amministratore`) VALUES
 	(1, 'adm', 'adm', 1),
 	(3, 'utente', 'utente', 0),
 	(4, '19926', '19926', 0),
-	(5, 'tezza', 'tezza', 0);
+	(5, 'tezza', 'tezza', 0),
+	(6, 'test', '1234', 0);
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
