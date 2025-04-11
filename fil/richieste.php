@@ -28,17 +28,20 @@
 	}else{
 		print("<table border='3'>\n".
 			"<tr>\n".
-			"<th>Data Prenotazione</th>\n".
-			"<th>Orario di inizio</th>\n".
-			"<th>Orario di fine</th>\n".
+			"<th>Giorno</th>\n".
+			"<th>Inizio</th>\n".
+			"<th>Fine</th>\n".
 			"<th>Aula</th>\n".
 			"<th>Utente</th>\n".
 			"</tr>\n");
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+			$giorno = explode(" ", $row['oraInizio']);
+			$oraInizio = explode(" ", $row['oraInizio']);
+			$oraFine = explode(" ", $row['oraFine']);
 			print("<tr>".
-				"<td>".$row['dataPrenotazione']."</td>\n".
-				"<td>".$row['oraInizio'].	"</td>\n".
-				"<td>".$row['oraFine'].	"</td>\n".
+				"<td>".$giorno[0]."</td>\n".
+				"<td>".$oraInizio[1].	"</td>\n".
+				"<td>".$oraFine[1].	"</td>\n".
 				"<td>".$row['aula'].	"</td>\n".
 				"<td>".$row['username'].	"</td>\n". //visualizza i dettagli della prenotazione
 				"<td>".
@@ -56,4 +59,5 @@
 		echo "</table> <br><br>";
 	}
 	print("<a href='index.php'> Home </a>"); //ritorno all'index
+	//onclick='window.location.reload(true);'
 ?>
