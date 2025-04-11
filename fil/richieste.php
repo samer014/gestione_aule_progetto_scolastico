@@ -1,7 +1,6 @@
 <?php
 	session_start();
 	$user=$_SESSION["username"]??"";
-	$user=$_SESSION["username"]??"";
 	if ($user != "adm"){
 		header('Location: index.php');
 		exit();
