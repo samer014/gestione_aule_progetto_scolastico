@@ -2,234 +2,196 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Calendario Settimanale</title>
+    <title>Seleziona Orario</title>
 </head>
 <body>
 
-    <?php
-    $day;
-    $month;
-    $year;
-    
-    // Ricava da calendario.php il giorno, mese e anno della prenotazione
-    if (isset($_GET['day'], $_GET['month'], $_GET['year'])) {
-        $day = $_GET['day'];
-        $month = $_GET['month'];
-        $year = $_GET['year'];
 
-        $day = str_pad($day, 2, "0", STR_PAD_LEFT);
-        $month = str_pad($month, 2, "0", STR_PAD_LEFT);
+<?php
+	include "./db_connect.php";
+	session_start();
+	$user=$_SESSION["username"]??"";
+	$user=$_SESSION["username"]??"";
+	if ($user == ""){
+		header('Location: index.php');
+		exit();
+	}
+	$qualeId = "SELECT id FROM utenti WHERE username = :username;";
+	try {
+		$stmt = $con->prepare( $qualeId );
+		$stmt->bindParam(':username', $user, PDO::PARAM_STR);
+		$stmt->execute();
+	} catch(PDOException $ex) {
+		print($ex);
+		exit();
+	}
+	$row = $stmt->fetch(PDO::FETCH_ASSOC);
+	$idUtente = $row['id'];
+	ini_set('display_errors', 'On');
+	error_reporting(E_ALL);
+?>
+<?php
+// 1) Recupero data da GET (clic sul calendario) o da POST (submit del form)
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['day'], $_GET['month'], $_GET['year'])) {
+    $day   = str_pad($_GET['day'],   2, "0", STR_PAD_LEFT);
+    $month = str_pad($_GET['month'], 2, "0", STR_PAD_LEFT);
+    $year  = $_GET['year'];
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['day'], $_POST['month'], $_POST['year'])) {
+    $day   = str_pad($_POST['day'],   2, "0", STR_PAD_LEFT);
+    $month = str_pad($_POST['month'], 2, "0", STR_PAD_LEFT);
+    $year  = $_POST['year'];
+} else {
+    die("Parametri di data non validi");
+}
 
-        print($day . $month . $year);
-    }
-    ?>
+// Mappatura PHP day→enum aule_libere
+$mapG = ['Mon'=>'LUN','Tue'=>'MAR','Wed'=>'MER','Thu'=>'GIO','Fri'=>'VEN'];
+$dShort = date('D', mktime(0,0,0,$month,$day,$year));
+if (!isset($mapG[$dShort])) die("Non è un giorno prenotabile");
+$giornoEnum = $mapG[$dShort];
 
-    <form method="post" action="">
-        <label for="orario_inizio">Seleziona un orario scolastico da:</label>
-        <select id="orario_inizio" name="orario_inizio">
-            <?php
-            include "./db_connect.php";
+// Connessione al database
+include "./db_connect.php";
 
-            $query = "SELECT oraInizio FROM orari"; // Recupera tutti gli orari dal db
-            try {
-                $stmt = $con->prepare($query);
-                $stmt->execute();
-            } catch (PDOException $ex) {
-                die("Errore: " . $ex->getMessage());
-            }
+// Carico array di tutti gli orari
+$orari = $con->query("SELECT oraInizio FROM orari ORDER BY ora")->fetchAll(PDO::FETCH_COLUMN);
 
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                echo "<option value='" . htmlspecialchars($row['oraInizio']) . "'>" . htmlspecialchars($row['oraInizio']) . "</option>"; // lista a discesa che sceglie orari inizio
-            }
-            ?>
-        </select>
+// 2) Se ho cliccato “Trova Aule”
+if (isset($_POST['conferma'])) {
+    $orario_inizio = $_POST['orario_inizio'];
+    $orario_fine   = $_POST['orario_fine'];
 
-        <label for="orario_fine">a:</label>
-        <select id="orario_fine" name="orario_fine">
-            <?php
-            $stmt->execute(); // Ri-esegui la query per il secondo select
-
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                echo "<option value='" . htmlspecialchars($row['oraInizio']) . "'>" . htmlspecialchars($row['oraInizio']) . "</option>"; // lista a discesa che sceglie orari fine
-            }
-            ?>
-        </select>
-
-        <button type="submit" name="conferma">Conferma</button>
-    </form>
-
-    <?php
-    if (isset($_POST['conferma'])) { // quando clicco conferma...
-        $orario_inizio = $_POST['orario_inizio'];
-        $orario_fine = $_POST['orario_fine'];
-        print($orario_inizio . "-" . $orario_fine);
-
-        // controllo che orario inizio sia minore di quello di fine 
-        $orario_inizio_dt = DateTime::createFromFormat('H:i', $orario_inizio);
-        $orario_fine_dt = DateTime::createFromFormat('H:i', $orario_fine);
-
-        if ($orario_inizio_dt && $orario_fine_dt && $orario_fine_dt > $orario_inizio_dt) {
-            // trovo le aule disponibili dell'orario scelto
-            getAuleDisponibili($orario_inizio, $orario_fine, $year, $month, $day);
-        } else {
-            echo "Errore: l'orario di fine deve essere maggiore dell'orario di inizio.";
+    // Validazione orari
+    $dtIn = DateTime::createFromFormat('H:i', $orario_inizio);
+    $dtFi = DateTime::createFromFormat('H:i', $orario_fine);
+    if (!$dtIn || !$dtFi || $dtFi <= $dtIn) {
+        echo "<p style='color:red'>Errore: l'orario di fine deve essere successivo all'inizio.</p>";
+    } else {
+        // 2.1) Recupero gli indici interi degli slot
+        $q = "SELECT ora FROM orari WHERE oraInizio = ?";
+        $s = $con->prepare($q);
+        $s->execute([$orario_inizio]);
+        $i1 = $s->fetchColumn();
+        $s->execute([$orario_fine]);
+        $i2 = $s->fetchColumn();
+        if (!$i1 || !$i2) {
+            die("Slot non trovato in tabella orari.");
         }
-    }
 
-    // Funzione per ottenere le aule disponibili
-    function getAuleDisponibili($orario_inizio, $orario_fine, $year, $month, $day) {
-        include "./db_connect.php";
+        // 2.2) Creo array di slot interi e poi li pado a due cifre
+        $slots_int = range($i1, $i2 - 1);
+        $slots_str = array_map(fn($n) => str_pad($n, 2, '0', STR_PAD_LEFT), $slots_int);
 
-        // Recuperiamo tutte le aule dalla tabella delle aule libere
-        $query = "SELECT aula FROM aule_libere";
-        try {
-            $stmt = $con->prepare($query);
-            $stmt->execute();
+        // 2.3) Preparo placeholders "?, ?, ..."
+        $ph = implode(',', array_fill(0, count($slots_str), '?'));
 
-            // Tabella HTML per visualizzare le aule disponibili
-            print("<table border='1'>\n".
-                "<tr>\n".
-                "<th>Aula</th>\n".
-                "<th>Prenota</th>\n".
-                "</tr>\n");
+        // 2.4) Query per le aule che compaiono in tutti gli slot
+        $sql = "SELECT aula
+                FROM aule_libere
+                WHERE giorno = ?
+                  AND ora IN ($ph)
+                GROUP BY aula
+                HAVING COUNT(*) = ?";
+        $stmt = $con->prepare($sql);
+        $params = array_merge([$giornoEnum], $slots_str, [count($slots_str)]);
+        $stmt->execute($params);
 
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                // Controlliamo se l'aula è libera per l'orario selezionato
-                $aula = $row['aula'];
-                $disponibile = aLibera($aula, $year, $month, $day, $orario_inizio, $orario_fine);
+        echo "<h2>Aule libere il $day/$month/$year dalle $orario_inizio alle $orario_fine</h2>";
+        echo "<table border='1'>
+                <tr><th>Aula</th><th>Prenota</th></tr>";
 
-                if ($disponibile) {
-                    print("<tr>".
-                        "<td>" . htmlspecialchars($aula) . "</td>\n".
-                        "<td>".
-                            "<form method='post'>".
-                                "<input type='hidden' name='orario_inizio' value='".htmlspecialchars($orario_inizio)."'>".
-                                "<input type='hidden' name='orario_fine' value='".htmlspecialchars($orario_fine)."'>".
-                                "<input type='hidden' name='aula' value='".htmlspecialchars($aula)."'>".
-                                "<button class='fixed-button' value='".htmlspecialchars($aula)."' name='seleziona_aula'>Seleziona</button>".
-                            "</form>".
-                        "</td>".
-                    "</tr>\n");
+        if ($stmt->rowCount() === 0) {
+            echo "<tr><td colspan='2'>Nessuna aula libera in questo orario</td></tr>";
+        } else {
+            while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $aula = $r['aula'];
+                // Verifica sovrapposizioni in prenotazioni
+                $inizio = "$year-$month-$day $orario_inizio:00";
+                $fine   = "$year-$month-$day $orario_fine:00";
+                $q2 = "SELECT 1 FROM prenotazioni
+                       WHERE aula = ?
+                         AND (oraInizio < ? AND oraFine > ?)";
+                $s2 = $con->prepare($q2);
+                $s2->execute([$aula, $fine, $inizio]);
+                if ($s2->rowCount() === 0) {
+                    echo "<tr>
+                            <td>".htmlspecialchars($aula)."</td>
+                            <td>
+                              <form method='post'>
+                                <input type='hidden' name='day'             value='$day'>
+                                <input type='hidden' name='month'           value='$month'>
+                                <input type='hidden' name='year'            value='$year'>
+                                <input type='hidden' name='orario_inizio'   value='$orario_inizio'>
+                                <input type='hidden' name='orario_fine'     value='$orario_fine'>
+                                <input type='hidden' name='aula'            value='$aula'>
+                                <button name='seleziona_aula'>Seleziona</button>
+                              </form>
+                            </td>
+                          </tr>";
                 }
             }
-
-            echo "</table><br><br>";
-            print("<a href='index.php'>Home</a>");
-        } catch(PDOException $ex) {
-            print("Errore: " . $ex->getMessage());
-            exit;
         }
+        echo "</table><br>";
     }
+}
 
-    // Funzione che verifica se l'aula è libera
-    function aLibera($aula, $year, $month, $day, $orario_inizio, $orario_fine) {
-        include "./db_connect.php";
+// 3) Seleziona aula e inserisce prenotazione (con accettata, dataEsito e IdAmministratore = NULL)
+if (isset($_POST['seleziona_aula'])) {
+    $aula = $_POST['aula'];
+    $i    = $_POST['orario_inizio'];
+    $f    = $_POST['orario_fine'];
+    $inizio = "$year-$month-$day $i:00";
+    $fine   = "$year-$month-$day $f:00";
+    $now    = date('Y-m-d H:i:s');
+	
+    $ins = "INSERT INTO prenotazioni
+            (dataPrenotazione, accettata, dataEsito, oraInizio, oraFine, aula, IdUtente, IdAmministratore)
+            VALUES (?, NULL, NULL, ?, ?, ?, ?, NULL)";
+    $st = $con->prepare($ins);
+    $st->execute([$now, $inizio, $fine, $aula, $idUtente]);
 
-        // Mappa dei giorni
-        $giorni = [
-            'Monday'    => 'LUN',
-            'Tuesday'   => 'MAR',
-            'Wednesday' => 'MER',
-            'Thursday'  => 'GIO',
-            'Friday'    => 'VEN',
-            'Saturday'  => 'SAB',
-            'Sunday'    => 'DOM'
-        ];
+    echo "<h2>Prenotazione avvenuta!</h2>
+          <p>Aula: <strong>$aula</strong><br>
+             Orario: <strong>$i - $f</strong><br>
+             Data: <strong>$day/$month/$year</strong></p>";
+    exit;
+}
+// 4) Form di selezione orari (default o dopo POST senza prenotare)
+?>
+<form method="post">
+  <input type="hidden" name="day"   value="<?php echo $day; ?>">
+  <input type="hidden" name="month" value="<?php echo $month; ?>">
+  <input type="hidden" name="year"  value="<?php echo $year; ?>">
 
-        // Calcolare il giorno della settimana
-        $date = new DateTime("$year-$month-$day");
-        $gSettEng = $date->format('l');  // Ottenere il giorno in inglese
-        $gSett = $giorni[$gSettEng]; // Tradurre in italiano
+  <label>Da:
+    <select name="orario_inizio">
+      <?php foreach ($orari as $h): ?>
+        <option value="<?php echo $h; ?>"
+          <?php if (!empty($orario_inizio) && $orario_inizio === $h) echo 'selected'; ?>>
+          <?php echo $h; ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </label>
 
-        // Mappa degli orari
-        $ore = [
-            "08:50" => 1,
-            "09:40" => 2,
-            "10:50" => 3,
-            "11:45" => 4,
-            "12:50" => 5,
-            "13:40" => 6,
-            "14:30" => 7
-        ];
+  <label>A:
+    <select name="orario_fine">
+      <?php foreach ($orari as $h): ?>
+        <option value="<?php echo $h; ?>"
+          <?php if (!empty($orario_fine) && $orario_fine === $h) echo 'selected'; ?>>
+          <?php echo $h; ?>
+        </option>
+      <?php endforeach; ?>
+    </select>
+  </label>
 
-        // Calcolare l'ora corrispondente all'orario di fine
-        $ora = $ore[$orario_fine];
+  <button name="conferma">Trova Aule</button>
+</form>
+<a href='calendario.php'>Indietro</a><br>
 
-        // Creiamo le stringhe complete per orario_inizio e orario_fine
-        $orario_inizio_completo = "$year-$month-$day $orario_inizio:00";
-        $orario_fine_completo = "$year-$month-$day $orario_fine:00";
-
-        // Verifica se l'aula è disponibile
-        $query = "SELECT * FROM prenotazioni WHERE oraInizio = :orario_inizio AND oraFine = :orario_fine AND aula = :aula";
-        try {
-            $stmt = $con->prepare($query);
-            $stmt->execute([
-                ':orario_inizio' => $orario_inizio_completo,
-                ':orario_fine' => $orario_fine_completo,
-                ':aula' => $aula
-            ]);
-
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($row) {
-                return false; // Aula non disponibile
-            } else {
-                return true;  // Aula disponibile
-            }
-        } catch(PDOException $ex) {
-            print("Errore: " . $ex->getMessage());
-            exit;
-        }
-    }
-
-    // Funzione per selezionare un'aula e inserire la prenotazione
-    if (isset($_POST['seleziona_aula'])) {
-        $orario_inizio = $_POST['orario_inizio'];
-        $orario_fine = $_POST['orario_fine'];
-        $aula_selezionata = $_POST['aula']; // Aula selezionata
-        $idUtente = 1; // Sostituisci con l'ID dell'utente attualmente autenticato
-
-        // Inserire la prenotazione nel database
-        inserisciPrenotazione($orario_inizio, $orario_fine, $aula_selezionata, $idUtente, $year, $month, $day);
-
-        // Mostra un messaggio di conferma
-        echo "<h2>La prenotazione è stata completata con successo!</h2>";
-        echo "<p>Orario di inizio: $orario_inizio</p>";
-        echo "<p>Orario di fine: $orario_fine</p>";
-        echo "<p>Aula: $aula_selezionata</p>";
-        echo "<p><a href='index.php'>Torna alla home</a></p>";
-    }
-
-    // Funzione per inserire una prenotazione nel database
-    function inserisciPrenotazione($orario_inizio, $orario_fine, $aula, $idUtente, $year, $month, $day) {
-        include "./db_connect.php";
-
-        // Creare la data di inizio e di fine
-        $orario_inizio_completo = "$year-$month-$day $orario_inizio:00";
-        $orario_fine_completo = "$year-$month-$day $orario_fine:00";
-
-        // Data della prenotazione (adesso)
-        $dataPrenotazione = date('Y-m-d H:i:s'); // Data e ora attuali
-
-        // Query per inserire la prenotazione
-        $query = "INSERT INTO prenotazioni (dataPrenotazione, oraInizio, oraFine, aula, idUtente) 
-                  VALUES (:dataPrenotazione, :oraInizio, :oraFine, :aula, :idUtente)";
-        
-        try {
-            $stmt = $con->prepare($query);
-            $stmt->execute([
-                ':dataPrenotazione' => $dataPrenotazione,
-                ':oraInizio' => $orario_inizio_completo,
-                ':oraFine' => $orario_fine_completo,
-                ':aula' => $aula,
-                ':idUtente' => $idUtente
-            ]);
-        } catch(PDOException $ex) {
-            print("Errore: " . $ex->getMessage());
-            exit;
-        }
-    }
-    ?>
-
+<?php
+	//header("Refresh:10; url='prenotazioni.php'");
+	//header("Location: prenotazioni.php");
+?>
 </body>
 </html>

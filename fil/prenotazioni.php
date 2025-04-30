@@ -1,7 +1,7 @@
 <?php
 	session_start();
 	$user=$_SESSION["username"]??"";
-	if ($user == ""){
+	if ($user === ""){
 		header('Location: index.php');
 		exit();
 	}
@@ -29,7 +29,7 @@
 		exit;
 	}
 	
-	if($num == 0){
+	if($num === 0){
 		print("<h2>Nessuna prenotazione effettuata</h2>");
 	}else{
 		print("<table border='3'>\n".
@@ -39,24 +39,32 @@
 			"<th>Fine</th>\n".
 			"<th>Aula</th>\n".
 			"<th>Esito</th>\n".
+			"<th>EsitoB</th>\n".
 			"</tr>\n");
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$giorno = explode(" ", $row['oraInizio']);
 			$oraInizio = explode(" ", $row['oraInizio']);
 			$oraFine = explode(" ", $row['oraFine']);
-			$accettata = "In revisione";
-			if($row['accettata']==1){
-				$accettata = "accettata";
+			if($row['accettata']===""){
+				$accettata = "In revisione";
+			}else{
+				if($row['accettata']===0){
+					$accettata = "rifiutata";
+				}else{
+					if($row['accettata']==1){
+						$accettata = "accettata";
+					}
+				}
 			}
-			if($row['accettata']==0){
-				$accettata = "rifiutata";
-			}
+			
+			
 			print("<tr>".
 				"<td>".$giorno[0]."</td>\n".
 				"<td>".$oraInizio[1].	"</td>\n".
 				"<td>".$oraFine[1].	"</td>\n".
 				"<td>".$row['aula'].	"</td>\n".
-				"<td>".$accettata.	"</td>\n"
+				"<td>".$accettata.	"</td>\n".
+				"<td>".$row['accettata'].	"</td>\n"
 			);
 		}
 		echo "</table> <br><br>";
