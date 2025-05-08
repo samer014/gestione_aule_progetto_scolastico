@@ -27,7 +27,7 @@
 				print("<a href=\"orari.php\">MODIFICA ORARI</a><br>"); //modifica degli orari
 				print("<a href=\"richieste.php\">VISUALIZZA RICHIESTE</a><br>"); //collegamento per visualizzare e accettare o rifiutare le richieste
 				print("<a href=\"indexAule.php\">GESTIONE AULE</a><br>"); //collegamento per rimuovere/aggiungere aule dal DB, aggiunta note alle aule
-				//print("<a href=\"prenotazioni.php\">LE MIE PRENOTAZIONI</a><br>"); //collegamento alla pagina per visualizzare le mie prenotazioni
+				print("<a href=\"prenotazioni.php\">LE MIE PRENOTAZIONI</a><br>"); //collegamento alla pagina per visualizzare le mie prenotazioni
 			}else { // se utente normale
 				print("<h3> Bentornato $user </h3>"); //messaggio di bentornato
 				print("<a href=\"logout.php\">LOGOUT</a><br>"); //termina sessione
