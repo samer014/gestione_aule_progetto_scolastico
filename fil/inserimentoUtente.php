@@ -1,10 +1,13 @@
 <?php
-			session_start();
-			$user=$_SESSION["username"]??"";
-
-			ini_set('display_errors', 'On');
-			error_reporting(E_ALL);
-			include "./db_connect.php";
+	session_start();
+	$user=$_SESSION["username"]??"";
+	if ($user != "adm"){
+		header('Location: index.php');
+		exit();
+	}
+	ini_set('display_errors', 'On');
+	error_reporting(E_ALL);
+	include "./db_connect.php";
 ?>
 <?php 
     $username = $_POST['newUser']; //dati da creaUtente.php

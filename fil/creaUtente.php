@@ -15,7 +15,7 @@
 <?php 
 	print("<tr>".
 			"<td>Inserisci nome e password</td>\n".
-			"<form action='doCreaUtente.php' method='post'>". // inserisci l'username e password del nuovo utente
+			"<form action='inserimentoUtente.php' method='post'>". // inserisci l'username e password del nuovo utente
 				"<td><input placeholder='username' name='newUser'></td>\n".
 				"<td><input placeholder='password' name='newPass'></td>\n".
 				"<td>".
