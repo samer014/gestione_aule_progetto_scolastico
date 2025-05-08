@@ -44,12 +44,12 @@
 				"<td>".$row['aula'].	"</td>\n".
 				"<td>".$row['username'].	"</td>\n". //visualizza i dettagli della prenotazione
 				"<td>".
-					"<form action='doAccettaP.php' method='post'>".
+					"<form action='accettaPrenotazione.php' method='post'>".
 						"<button value=".$row['id']." name='id'>ACCETTA</button>".  //accetta la prenotazione
 					"</form>".
 				"</td>".
 				"<td>".
-					"<form action='doRifiutaP.php' method='post'>".
+					"<form action='rifiutaPrenotazione.php' method='post'>".
 						"<button value=".$row['id']." name='id'>RIFIUTA</button>". //rifiuta la prenotazione
 					"</form>".
 				"</td>".
