@@ -22,7 +22,7 @@
     }
 
     print("<h3>Rimuovi aula</h3>");
-    print("<form action='doRimuoviAula.php' method='post'>");
+    print("<form action='rimuoviAula.php' method='post'>");
     print("<table>");
     print("<select name='aula'>");
     print("<option value='none' selected disabled hidden>Seleziona un'aula</option>");
@@ -37,7 +37,7 @@
 
 
 	print("<h3>Aggiungi aula</h3>");
-	print("<form action='doAggiungiAula.php' method='post'>");
+	print("<form action='aggiungiAula.php' method='post'>");
 	print("<input placeholder='4 CARATTERI' maxlength='4' type='text' name='aula'>");
     print("<table>");
 	print("<button type='submit'>Aggiungi</button>");
@@ -56,7 +56,7 @@
 	
 	
 	print("<h3>Inserisci o rimuovi note</h3>");
-	print("<form action='doInserisciNote.php' method='post'>");
+	print("<form action='inserisciNoteAula.php' method='post'>");
 	print("<input placeholder='note' type='text' name='note'>");
     print("<table>");
 	print("<select name='aula'>");
