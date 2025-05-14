@@ -1,6 +1,80 @@
+# Dependencies
 /vendor/
+/node_modules/
+composer.lock
+package-lock.json
+
+# Environment files
 .env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# Security keys and certificates
+*.key
+*.pem
+*.crt
 jwt-secret.key
-*.env.local
-/API/
+private.key
+public.key
+
+# IDE and editor files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+*.swp
+*.swo
+
+# Cache and logs
+/var/cache/
+/var/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build and dist directories
+/dist/
+/build/
+/public/hot/
+/public/storage/
+
+# Database
 /sql/
+*.sql
+*.sqlite
+*.db
+
+# API documentation
+/API/
+/docs/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Test coverage
+/coverage/
+.phpunit.result.cache
+
+#Excludes dependency directories and lock files
+#Protects sensitive environment files
+#Ignores security keys and certificates
+#Excludes IDE/editor specific files
+#Ignores cache and log files
+#Excludes build artifacts
+#Protects database files and SQL scripts
+#Ignores API documentation
+#Excludes OS-specific files
+#Ignores backup files
+#Excludes test coverage reports
