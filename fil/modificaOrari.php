@@ -1,7 +1,6 @@
 <?php
 	session_start();
 	$user=$_SESSION["username"]??"";
-	$user=$_SESSION["username"]??"";
 	if ($user != "adm"){
 		header('Location: index.php');
 		exit();
@@ -32,7 +31,7 @@
 	while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 		print("<tr>".
 				"<td>".$ora."</td>\n".
-				"<form action='doModificaOrari.php' method='post'>".
+				"<form action='aggiornaOrari.php' method='post'>".
 					"<td><input name='oraInizio' value=".$row['oraInizio']."></td>\n".
 					"<td>".
 						"<a href='orari.php'><button class='fixed-button' value=".$ora." name='ora'>Conferma</button></a>".

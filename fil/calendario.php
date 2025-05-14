@@ -1,111 +1,81 @@
 <?php
-function calendario($month, $year){
-	$today = unixtojd(mktime(0, 0, 0, $month, 1, $year)); // imposto funzione che richiama il calendario(mese, giorno, anno) restituendomi il giorno della settimana
-	$cal = cal_from_jd($today, CAL_GREGORIAN);
-	return $cal;
+function calendario($m,$y){
+  return cal_from_jd(
+    unixtojd(mktime(0,0,0,$m,1,$y)),
+    CAL_GREGORIAN
+  );
 }
-?>
 
-<?php
-//Array associativo dei mesi dell'anno
-$mese = array(
-	1 => "Gennaio",
-	2 => "Febbraio",
-	3 => "Marzo",
-	4 => "Aprile",
-	5 => "Maggio",
-	6 => "Giugno",
-	7 => "Luglio",
-	8 => "Agosto",
-	9 => "Settembre",
-	10 => "Ottobre",
-	11 => "Novembre",
-	12 => "Dicembre"
-);
+// Nomi
+$mese = [1=>"Gennaio",2=>"Febbraio",3=>"Marzo",4=>"Aprile",
+         5=>"Maggio",6=>"Giugno",7=>"Luglio",8=>"Agosto",
+         9=>"Settembre",10=>"Ottobre",11=>"Novembre",12=>"Dicembre"];
+$giorno = ["Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato","Domenica"];
+$giornoEn = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
-//Array associativo dei giorni della settimana
-$giorno = array(
-	0 => "Lunedì",
-	1 => "Martedì",
-	2 => "Mercoledì",
-	3 => "Giovedì",
-	4 => "Venerdì",
-	5 => "Sabato",
-	6 => "Domenica"
-);
+// Data odierna
+$oggiG = date("j");
+$oggiM = date("n");
+$oggiY = date("Y");
 
-//Array associativo dei giorni della settimana in inglese
-$giornoIngl = array(
-	0 => "Monday",
-	1 => "Tuesday",
-	2 => "Wednesday",
-	3 => "Thursday",
-	4 => "Friday",
-	5 => "Saturday",
-	6 => "Sunday"
-);
+// Mese/Anno correnti o da GET
+$m = isset($_GET['month'])?(int)$_GET['month']:$oggiM;
+$y = isset($_GET['year'])?(int)$_GET['year']:$oggiY;
 
-$t=time(); //Data corrente
-$day = date("d",$t); //Ricava giorno corrente
-$month = isset($_GET['month']) ? (int)$_GET['month'] : date("m", $t); // Ricava mese corrente, ma lo prende da $_GET se presente con isset si guarda se esiste month nel get
-$year = isset($_GET['year']) ? (int)$_GET['year'] : date("Y", $t); // Ricava l'anno corrente
+// Prev/Next
+$pm = ($m==1?12:$m-1);
+$py = ($m==1?$y-1:$y);
+$nm = ($m==12?1:$m+1);
+$ny = ($m==12?$y+1:$y);
 
-// Mostra il pulsante per il mese successivo
-$nextMonth = $month == 12 ? 1 : $month + 1; // nextMonth se è dicembre(12) sarà Gennaio(1) sennò sarà il prossimo incremetando di 1
-$nextYear = $month == 12 ? $year + 1 : $year; // nextYear se il mese è dicembre(12), l'anno sarà +1 sennò resta invariato
-$prevMonth = $month == 1 ? 12 : $month - 1; //prevMonth se è gennaio(1) allora diventa dicembre(12) sennò -1
-$prevYear = $month == 1 ? $year - 1 : $year; // prevYear se il mese è gennaio(1), l'anno sarà -1 sennò resta invariato
+// Pulsanti mese
+if ($py<$oggiY || ($py==$oggiY && $pm<$oggiM)) {
+  echo "<button disabled><-</button>";
+} else {
+  echo "<a href='?month=$pm&year=$py'><button><-</button></a>";
+}
+echo "<h1>{$mese[$m]} $y</h1>";
+echo "<a href='?month=$nm&year=$ny'><button>-></button></a>";
 
-$totGiorni = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+// Tabella
+echo "<table border=1><tr>";
+foreach($giorno as $d) echo "<th>$d</th>";
+echo "</tr>";
 
-//Creazione tabella
-print("<table>");
-	print("<tr>");
-		print("<td>");
-			print("<a href='?month=$prevMonth&year=$prevYear'><button><-</button></a>"); // Pulsante mese precedente
-			print("<a href='?month=$nextMonth&year=$nextYear'><button>-></button></a>"); // Pulsante mese successivo
-			print("<h1>" . $mese[$month] . " " . $year . "</h1> \n"); // stampa il mese e anno corrente
-			print("<table> \n");
-				print("<tr> \n");
-					for($i=0; $i<7; $i++){ //ciclo for che aggiunge i giorni della settimana
-						print("<td>" . $giorno[$i] . "</td> \n");
-					}
-				print("</tr>\n");
-				$cal = calendario($month,$year);
-				$trovaGSett = false;
-				$giorniM = 1;
-				for($r=0; $r<6; $r++){
-					print("<tr>\n");
-						for($c=0; $c<7; $c++){
-							if($cal["dayname"]!= $giornoIngl[$c] && $trovaGSett == false){
-								print("<td></td>\n");
-							}else{
-								$trovaGSett = true;
-								if($giorniM <= $totGiorni){
-									print("<td> <button>" . $giorniM . "</button> </td>\n");
-										$giorniM++;
-								}
-							}
-						}
-					print("<tr>\n");
-				}
-			print("</table>");
-		print("</td>");
+$cal = calendario($m,$y);
+$start = false;
+$dd=1;
+$tot = cal_days_in_month(CAL_GREGORIAN,$m,$y);
+for($r=0;$r<6;$r++){
+  echo "<tr>";
+  for($c=0;$c<7;$c++){
+    if(!$start && $cal['dayname']!=$giornoEn[$c]){
+      echo "<td></td>";
+    } else {
+      $start = true;
+      if($dd<=$tot){
+        // data del bottone
+        $isPast = ($y<$oggiY) ||
+                  ($y==$oggiY && $m<$oggiM) ||
+                  ($y==$oggiY && $m==$oggiM && $dd<$oggiG);
 
-		print("<td>");
-		
-		print("<form action='#'>");
-		  print("
-		  <select size=4>".
-			"<option value='javascript'>JavaScript</option>".
-			"<option value='php'>PHP</option>".
-		  "</select>".
-		  "<input type='submit' value='Submit'/>");
-		print("</form>");
-
-		print("</td>");
-	
-	print("</tr>");
-print("</table>");
-
+        $attr = $isPast ? "disabled" : "";
+        echo "<td>
+                <form action='scegliOra.php' method='get'>
+                  <input type='hidden' name='day'   value='$dd'>
+                  <input type='hidden' name='month' value='$m'>
+                  <input type='hidden' name='year'  value='$y'>
+                  <button $attr type='submit'>$dd</button>
+                </form>
+              </td>";
+        $dd++;
+      } else {
+        echo "<td></td>";
+      }
+    }
+  }
+  echo "</tr>";
+}
+echo "</table>";
+print("<a href=\"index.php\">Home</a><br>");
 ?>

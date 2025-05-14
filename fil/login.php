@@ -8,7 +8,7 @@
 			ini_set('display_errors', 'On');
 			error_reporting(E_ALL);
 		?>
-		<form action='doLogin.php' method='post' >
+		<form action='loginDB.php' method='post' >
 			<input placeholder='username' type='text' name='username' /><br>
 			<input placeholder='password' type='password' name='password' /><br>
 			<input type ='submit' value='ok'>

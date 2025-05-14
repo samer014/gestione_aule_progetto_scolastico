@@ -1,0 +1,6 @@
+/vendor/
+.env
+jwt-secret.key
+*.env.local
+/API/
+/sql/
