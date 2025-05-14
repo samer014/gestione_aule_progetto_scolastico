@@ -6,41 +6,88 @@ use Firebase\JWT\Key;
 class TokenController {
     private $secretKey;
     private $algorithm;
+    private $maxLoginAttempts = 5;
+    private $lockoutTime = 900; // 15 minutes in seconds
     
     public function __construct() {
         $this->secretKey = getenv('JWT_SECRET_KEY');
         $this->algorithm = 'HS256';
+        
+        // Set security headers
+        header("Content-Security-Policy: default-src 'self'");
+        header("X-Content-Type-Options: nosniff");
+        header("X-Frame-Options: DENY");
+        header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
     }
 
     public function generateToken($clientId, $clientSecret) {
+        // Rate limiting check
+        if ($this->isRateLimited($clientId)) {
+            http_response_code(429);
+            return json_encode(['error' => 'Too many attempts. Please try again later.']);
+        }
+
         // Validate client credentials
         if (!$this->validateCredentials($clientId, $clientSecret)) {
+            $this->logFailedAttempt($clientId);
             http_response_code(401);
             return json_encode(['error' => 'Invalid credentials']);
         }
 
         $issuedAt = time();
         $expire = $issuedAt + 3600; // Token expires in 1 hour
+        $jti = bin2hex(random_bytes(16)); // Unique token ID
 
         $payload = [
             'iss' => 'your-app-name',
             'aud' => $clientId,
             'iat' => $issuedAt,
             'exp' => $expire,
-            'scope' => ['read', 'write'] // Define allowed scopes
+            'jti' => $jti,
+            'scope' => ['read', 'write'],
+            'nbf' => $issuedAt // Not before claim
         ];
 
         try {
+            // Rotate keys if needed
+            $this->rotateKeysIfNeeded();
+            
             $token = JWT::encode($payload, $this->secretKey, $this->algorithm);
+            
+            // Store token metadata for revocation if needed
+            $this->storeTokenMetadata($jti, $clientId, $expire);
+            
             return json_encode([
                 'access_token' => $token,
                 'token_type' => 'Bearer',
                 'expires_in' => 3600
             ]);
         } catch (Exception $e) {
+            $this->logError('Token generation failed: ' . $e->getMessage());
             http_response_code(500);
             return json_encode(['error' => 'Token generation failed']);
         }
+    }
+
+    private function isRateLimited($clientId) {
+        // Implement rate limiting logic using Redis or similar
+        return false; // Placeholder
+    }
+
+    private function logFailedAttempt($clientId) {
+        // Implement failed login attempt logging
+    }
+
+    private function rotateKeysIfNeeded() {
+        // Implement key rotation logic
+    }
+
+    private function storeTokenMetadata($jti, $clientId, $expire) {
+        // Store in Redis or database for token revocation support
+    }
+
+    private function logError($message) {
+        // Implement secure error logging
     }
 
     private function validateCredentials($clientId, $clientSecret) {
