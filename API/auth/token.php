@@ -98,7 +98,13 @@ class TokenController {
     }
 
     private function storeTokenMetadata($jti, $clientId, $expire) {
-        // Store in Redis or database for token revocation support
+        global $con;
+        $issuedAt = time();
+        $stmt = $con->prepare(
+            "INSERT INTO jwt_tokens (user_id, access_token, jti, issued_at, expires_at) 
+             VALUES (?, '', ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?))"
+        );
+        $stmt->execute([$clientId, $jti, $issuedAt, $expire]);
     }
 
     private function logError($message) {
