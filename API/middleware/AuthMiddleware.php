@@ -1,95 +1,74 @@
 <?php
-
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 class AuthMiddleware {
     private $secretKey;
-    private $tokenBlacklist;
-
+    private $algorithm = 'HS256';
+    private $cache;
+    
     public function __construct() {
         $this->secretKey = getenv('JWT_SECRET_KEY');
-        $this->tokenBlacklist = new TokenBlacklist(); // Implement this class
-        
-        // Set security headers
-        header("Content-Security-Policy: default-src 'self'");
-        header("X-Content-Type-Options: nosniff");
-        header("X-Frame-Options: DENY");
-        header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
-    }
-
-    public function validateToken() {
-        if (!$this->isHttps()) {
-            http_response_code(403);
-            return json_encode(['error' => 'HTTPS required']);
+        if (!$this->secretKey) {
+            throw new Exception('JWT_SECRET_KEY non configurata');
         }
-
+        $this->cache = new RedisCacheAdapter();
+    }
+    
+    public function validateToken() {
         $headers = apache_request_headers();
         
         if (!isset($headers['Authorization'])) {
-            http_response_code(401);
-            return json_encode(['error' => 'No token provided']);
+            throw new Exception('Token non presente', 401);
         }
 
         $token = str_replace('Bearer ', '', $headers['Authorization']);
-
-        // Prevent token scanning attacks
-        if (strlen($token) > 1024) {
-            http_response_code(400);
-            return json_encode(['error' => 'Invalid token format']);
-        }
-
+        
         try {
-            // Check if token is blacklisted
-            if ($this->tokenBlacklist->isBlacklisted($token)) {
-                throw new Exception('Token has been revoked');
+            $decoded = JWT::decode(
+                $token, 
+                new Key($this->secretKey, $this->algorithm)
+            );
+            
+            // Verifica se il token è nella blacklist
+            if ($this->isTokenBlacklisted($decoded->jti)) {
+                throw new Exception('Token revocato', 401);
             }
 
-            $decoded = JWT::decode($token, new Key($this->secretKey, 'HS256'));
-            
-            // Validate additional claims
-            $this->validateClaims($decoded);
+            // Verifica rate limiting
+            $this->checkRateLimit($decoded->sub);
             
             return $decoded;
+            
         } catch (\Firebase\JWT\ExpiredException $e) {
-            $this->logSecurityEvent('Token expired', $token);
-            http_response_code(401);
-            return json_encode(['error' => 'Token expired']);
+            throw new Exception('Token scaduto', 401);
         } catch (Exception $e) {
-            $this->logSecurityEvent('Invalid token: ' . $e->getMessage(), $token);
-            http_response_code(401);
-            return json_encode(['error' => 'Invalid token']);
+            throw new Exception('Token non valido', 401);
         }
     }
-
-    private function isHttps() {
-        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') 
-            || $_SERVER['SERVER_PORT'] == 443;
+    
+    private function isTokenBlacklisted($jti) {
+        global $con;
+        $stmt = $con->prepare(
+            "SELECT 1 FROM token_blacklist 
+             WHERE jti = ? AND expiry > NOW()"
+        );
+        $stmt->execute([$jti]);
+        return $stmt->rowCount() > 0;
     }
 
-    private function validateClaims($decoded) {
-        // Validate issuer
-        if ($decoded->iss !== 'your-app-name') {
-            throw new Exception('Invalid issuer');
+    private function checkRateLimit($userId) {
+        $key = "rate_limit:$userId";
+        $count = $this->cache->increment($key);
+        
+        if ($count === 1) {
+            $this->cache->expire($key, 60); // 1 minuto
         }
-
-        // Validate audience if needed
-        // Add additional custom validations
-    }
-
-    private function logSecurityEvent($message, $token) {
-        // Implement secure logging
-        // Don't log full tokens, only masked versions
-        $maskedToken = substr($token, 0, 10) . '...';
-        // Log security event
-    }
-}
-
-class TokenBlacklist {
-    public function isBlacklisted($token) {
-        // Implement token blacklist check using Redis or database
-        return false;
+        
+        if ($count > 100) { // 100 richieste/minuto
+            throw new Exception('Troppe richieste', 429);
+        }
     }
 }
 ?>

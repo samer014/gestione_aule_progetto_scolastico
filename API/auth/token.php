@@ -69,6 +69,21 @@ class TokenController {
         }
     }
 
+    public function generateRefreshToken($userId) {
+        $issuedAt = time();
+        $expire = $issuedAt + (7 * 24 * 60 * 60); // 7 giorni
+        
+        $payload = [
+            'iss' => 'your-app-name',
+            'sub' => $userId,
+            'iat' => $issuedAt,
+            'exp' => $expire,
+            'jti' => bin2hex(random_bytes(16))
+        ];
+        
+        return JWT::encode($payload, $this->secretKey, $this->algorithm);
+    }
+
     private function isRateLimited($clientId) {
         // Implement rate limiting logic using Redis or similar
         return false; // Placeholder
@@ -95,4 +110,37 @@ class TokenController {
         return true; // Placeholder
     }
 }
+?>
+<?php
+    class TokenController {
+        private function isRateLimited($clientId) {
+                global $con;
+                $stmt = $con->prepare(
+                    "SELECT COUNT(*) FROM login_attempts 
+                    WHERE client_id = ? 
+                    AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)"
+                );
+                $stmt->execute([$clientId]);
+                return $stmt->fetchColumn() >= $this->maxLoginAttempts;
+            }
+
+            private function logFailedAttempt($clientId) {
+                global $con;
+                $stmt = $con->prepare(
+                    "INSERT INTO login_attempts (client_id, ip_address) 
+                    VALUES (?, ?)"
+                );
+                $stmt->execute([$clientId, $_SERVER['REMOTE_ADDR']]);
+            }
+
+            private function validateCredentials($clientId, $clientSecret) {
+                global $con;
+                $stmt = $con->prepare(
+                    "SELECT 1 FROM utenti 
+                    WHERE username = ? AND password = ?"
+                );
+                $stmt->execute([$clientId, hash('sha256', $clientSecret)]);
+                return $stmt->rowCount() > 0;
+        }
+    }
 ?>

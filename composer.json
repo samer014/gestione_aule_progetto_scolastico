@@ -1,0 +1,17 @@
+{
+    "name": "pacom/gestione_aule_progetto_scolastico",
+    "autoload": {
+        "psr-4": {
+            "Pacom\\GestioneAuleProgettoScolastico\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "samer014",
+            "email": "135011612+samer014@users.noreply.github.com"
+        }
+    ],
+    "require": {
+        "firebase/php-jwt": "^6.11"
+    }
+}
