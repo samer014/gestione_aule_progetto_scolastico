@@ -1,0 +1,163 @@
+/* InterfaceIndex.css */
+
+:root {
+    --primary: #2A5470;
+    --secondary: #4B86B4;
+    --accent: #FF6B6B;
+    --background: #F8F9FA;
+    --text: #2C3E50;
+    --card-bg: #FFFFFF;
+    --shadow: rgba(149, 157, 165, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui;
+}
+
+html {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+header {
+    /*background: var(--secondary);*/
+    color: white;
+    padding: 4rem 2rem 6rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+	background: rgba(75, 134, 180, 0.9);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* wrapper per il contenuto principale */
+.content {
+    flex: 1;
+    padding: 20px;
+}
+
+/* container interno */
+.main-container {
+    max-width: 1200px;
+    margin: 4rem auto 2rem;
+    padding: 0 2rem;
+}
+
+.user-card {
+    /*background: var(--card-bg);*/
+    border-radius: 15px;
+    box-shadow: 0 8px 32px var(--shadow);
+    padding: 2rem;
+    margin-bottom: 2rem;
+	background: rgba(255, 255, 255, 0.95);
+}
+
+.user-card h3 {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.8rem;
+}
+
+.menu-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: var(--text);
+}
+
+.menu-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px var(--shadow);
+    border-color: var(--secondary);
+}
+
+.menu-item i {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    color: var(--secondary);
+}
+
+.admin-menu .menu-item {
+    border-left: 4px solid var(--accent);
+}
+
+.logout-btn {
+    background: var(--accent);
+    color: white !important;
+    justify-content: center;
+    margin-top: 2rem;
+    grid-column: 1 / -1;
+    max-width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.login-btn {
+    padding: 1.5rem 3rem;
+    font-size: 1.2rem;
+    border-radius: 50px;
+    background: var(--primary);
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+    background: var(--secondary);
+    transform: scale(1.05);
+}
+
+footer {
+    margin-top: auto;
+    /*background-color: var(--primary);*/
+    color: var(--card-bg);
+    text-align: center;
+    padding: 20px 0;
+	background: rgba(42, 84, 112, 0.9);
+}
+
+footer a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: var(--secondary);
+    text-decoration: underline;
+}
