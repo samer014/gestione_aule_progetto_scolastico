@@ -762,3 +762,86 @@ footer a:hover {
 	margin-left: 0.5rem;
 	vertical-align: middle;
 }
+
+.schedule-container {
+	max-width: 800px;
+	margin: 2rem auto;
+	padding: 2rem;
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.page-title {
+	color: #2A5470;
+	text-align: center;
+	margin-bottom: 2.5rem;
+	font-size: 1.8rem;
+}
+
+.schedule-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 2rem 0;
+}
+
+.schedule-table th {
+	background: #2A5470;
+	color: white;
+	padding: 1rem;
+	text-align: left;
+}
+
+.schedule-table td {
+	padding: 0.8rem 1rem;
+	border-bottom: 1px solid #eee;
+}
+
+.schedule-table tr:hover {
+	background: #f8f9fa;
+}
+
+.edit-btn {
+	background: #4B86B4;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+	transition: all 0.3s;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.edit-btn:hover {
+	background: #2A5470;
+}
+
+.home-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: #2A5470;
+	text-decoration: none;
+	margin-top: 1.5rem;
+	padding: 0.8rem 1.5rem;
+	border-radius: 6px;
+	transition: all 0.3s;
+	background: #f0f0f0;
+}
+
+.home-link:hover {
+	background: #e0e0e0;
+}
+
+.admin-badge {
+	display: inline-block;
+	background: #FF6B6B;
+	color: white;
+	padding: 0.3rem 0.8rem;
+	border-radius: 50px;
+	font-size: 0.8rem;
+	margin-left: 0.5rem;
+	vertical-align: middle;
+}
