@@ -115,6 +115,12 @@ class TokenController {
         // Implement your credential validation logic here
         return true; // Placeholder
     }
+
+    private function revokeToken($jti) {
+        global $con;
+        $stmt = $con->prepare("UPDATE jwt_tokens SET revoked = 1 WHERE jti = ?");
+        $stmt->execute([$jti]);
+    }
 }
 ?>
 <?php
