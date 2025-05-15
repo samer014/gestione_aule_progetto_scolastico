@@ -845,3 +845,106 @@ footer a:hover {
 	margin-left: 0.5rem;
 	vertical-align: middle;
 }
+
+.edit-container {
+	max-width: 600px;
+	margin: 2rem auto;
+	padding: 2rem;
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.page-title {
+	color: #2A5470;
+	text-align: center;
+	margin-bottom: 2rem;
+	font-size: 1.8rem;
+}
+
+.edit-form {
+	margin-top: 2rem;
+}
+
+.form-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 1.5rem;
+}
+
+.form-table th {
+	background: #2A5470;
+	color: white;
+	padding: 1rem;
+	text-align: left;
+}
+
+.form-table td {
+	padding: 1rem;
+	border-bottom: 1px solid #eee;
+}
+
+.time-input {
+	padding: 0.8rem;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	font-size: 1rem;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.button-group {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 1.5rem;
+}
+
+.confirm-btn {
+	background: #4CAF50;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	padding: 0.8rem 1.5rem;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.3s;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.cancel-btn {
+	background: #f0f0f0;
+	color: #2A5470;
+	border: none;
+	border-radius: 6px;
+	padding: 0.8rem 1.5rem;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.3s;
+	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.confirm-btn:hover {
+	background: #3e8e41;
+	transform: translateY(-2px);
+}
+
+.cancel-btn:hover {
+	background: #e0e0e0;
+	transform: translateY(-2px);
+}
+
+.admin-badge {
+	display: inline-block;
+	background: #FF6B6B;
+	color: white;
+	padding: 0.3rem 0.8rem;
+	border-radius: 50px;
+	font-size: 0.8rem;
+	margin-left: 0.5rem;
+	vertical-align: middle;
+}
