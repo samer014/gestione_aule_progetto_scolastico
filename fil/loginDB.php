@@ -1,7 +1,7 @@
 <?php
 session_start();
+include 'db_connect.php'; // $con deve essere definito qui
 require_once __DIR__ . '/../API/auth/token.php';
-include 'db_connect.php';
 
 // Aggiungere CSRF token
 if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
@@ -18,25 +18,22 @@ if (empty($user) || empty($pass)) {
 }
 
 try {
+    // Recupera l'utente dal DB
     $stmt = $con->prepare(
-        "SELECT id, username, amministratore 
+        "SELECT id, username, password, amministratore 
          FROM utenti 
-         WHERE username = :user 
-         AND password = :pass"
+         WHERE username = :user"
     );
-    $stmt->execute([
-        ':user' => $user,
-        ':pass' => password_hash($pass, PASSWORD_DEFAULT)
-    ]);
-    
-    if ($stmt->rowCount() > 0) {
-        $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-        $tokenController = new TokenController();
-        $result = $tokenController->generateToken($userData['id']);
-        
+    $stmt->execute([':user' => $user]);
+    $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Verifica password
+    if ($userData && $pass === $userData['password']) { // Usa hash se necessario
+        $controller = new TokenController($con);
+        $result = json_decode($controller->generateToken($userData['username'], $pass), true);
+
         if (isset($result['access_token'])) {
             $_SESSION['token'] = $result['access_token'];
-            $_SESSION['refresh_token'] = $result['refresh_token'];
             $_SESSION['username'] = $userData['username'];
             header('Location: index.php');
             exit();

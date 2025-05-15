@@ -13,10 +13,17 @@ class TokenController {
     private $algorithm;
     private $maxLoginAttempts = 5;
     private $lockoutTime = 900; // 15 minutes in seconds
+    private $con;
     
-    public function __construct() {
-        $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
-        $dotenv->load();
+    public function __construct($con) {
+        $this->con = $con;
+        if (file_exists(__DIR__ . '/../../.env')) {
+            $lines = file(__DIR__ . '/../../.env');
+            foreach ($lines as $line) {
+                if (strpos(trim($line), '#') === 0 || trim($line) === '') continue;
+                putenv(trim($line));
+            }
+        }
         $this->secretKey = getenv('JWT_SECRET_KEY');
         $this->algorithm = 'HS256';
         
@@ -28,7 +35,6 @@ class TokenController {
     }
 
     public function generateToken($clientId, $clientSecret) {
-        global $con;
         // Rate limiting check
         if ($this->isRateLimited($clientId)) {
             http_response_code(429);
@@ -36,7 +42,7 @@ class TokenController {
         }
 
         // Recupera id utente e valida credenziali
-        $stmt = $con->prepare("SELECT id FROM utenti WHERE username = ? AND password = ?");
+        $stmt = $this->con->prepare("SELECT id FROM utenti WHERE username = ? AND password = ?");
         $stmt->execute([$clientId, hash('sha256', $clientSecret)]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$user) {
@@ -91,21 +97,20 @@ class TokenController {
     }
 
     private function isRateLimited($clientId) {
-        global $con;
-        $stmt = $con->prepare(
+        // Puoi personalizzare la logica, qui un esempio base:
+        $stmt = $this->con->prepare(
             "SELECT COUNT(*) FROM login_attempts 
-            WHERE client_id = ? 
-            AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)"
+             WHERE client_id = ? 
+             AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)"
         );
         $stmt->execute([$clientId]);
         return $stmt->fetchColumn() >= $this->maxLoginAttempts;
     }
 
     private function logFailedAttempt($clientId) {
-        global $con;
-        $stmt = $con->prepare(
-            "INSERT INTO login_attempts (client_id, ip_address) 
-            VALUES (?, ?)"
+        $stmt = $this->con->prepare(
+            "INSERT INTO login_attempts (client_id, ip_address, attempt_time) 
+             VALUES (?, ?, NOW())"
         );
         $stmt->execute([$clientId, $_SERVER['REMOTE_ADDR']]);
     }
@@ -115,9 +120,8 @@ class TokenController {
     }
 
     private function storeTokenMetadata($jti, $userId, $expire) {
-        global $con;
         $issuedAt = time();
-        $stmt = $con->prepare(
+        $stmt = $this->con->prepare(
             "INSERT INTO jwt_tokens (user_id, access_token, jti, issued_at, expires_at) 
              VALUES (?, '', ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?))"
         );
@@ -129,8 +133,7 @@ class TokenController {
     }
 
     private function validateCredentials($clientId, $clientSecret) {
-        global $con;
-        $stmt = $con->prepare(
+        $stmt = $this->con->prepare(
             "SELECT 1 FROM utenti 
             WHERE id = ? AND password = ?"
         );
@@ -139,14 +142,12 @@ class TokenController {
     }
 
     private function revokeToken($jti) {
-        global $con;
-        $stmt = $con->prepare("UPDATE jwt_tokens SET revoked = 1 WHERE jti = ?");
+        $stmt = $this->con->prepare("UPDATE jwt_tokens SET revoked = 1 WHERE jti = ?");
         $stmt->execute([$jti]);
     }
 
     private function isTokenValid($jti) {
-        global $con;
-        $stmt = $con->prepare("SELECT revoked FROM jwt_tokens WHERE jti = ?");
+        $stmt = $this->con->prepare("SELECT revoked FROM jwt_tokens WHERE jti = ?");
         $stmt->execute([$jti]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row && $row['revoked'] == 0;
@@ -157,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     $clientId = $data['clientId'] ?? null;
     $clientSecret = $data['clientSecret'] ?? null;
-    $controller = new TokenController();
+    $controller = new TokenController($con);
     header('Content-Type: application/json');
     echo $controller->generateToken($clientId, $clientSecret);
 } else {
