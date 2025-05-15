@@ -477,3 +477,79 @@ footer a:hover {
 	margin-bottom: 1.5rem;
 	border-left: 4px solid #f44336;
 }
+
+.bookings-container {
+	max-width: 1000px;
+	margin: 2rem auto;
+	padding: 2rem;
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.page-title {
+	color: #2A5470;
+	text-align: center;
+	margin-bottom: 2rem;
+}
+
+.bookings-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 2rem 0;
+}
+
+.bookings-table th {
+	background: #2A5470;
+	color: white;
+	padding: 1rem;
+	text-align: left;
+}
+
+.bookings-table td {
+	padding: 0.8rem 1rem;
+	border-bottom: 1px solid #eee;
+}
+
+.bookings-table tr:hover {
+	background: #f8f9fa;
+}
+
+.status-pending {
+	color: #FFA000;
+	font-weight: 500;
+}
+
+.status-approved {
+	color: #4CAF50;
+	font-weight: 500;
+}
+
+.status-rejected {
+	color: #F44336;
+	font-weight: 500;
+}
+
+.no-bookings {
+	text-align: center;
+	padding: 2rem;
+	color: #666;
+	font-size: 1.1rem;
+}
+
+.home-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: #2A5470;
+	text-decoration: none;
+	margin-top: 1.5rem;
+	padding: 0.8rem 1.5rem;
+	border-radius: 6px;
+	transition: all 0.3s;
+	background: #f0f0f0;
+}
+
+.home-link:hover {
+	background: #e0e0e0;
+}
