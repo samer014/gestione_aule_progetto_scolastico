@@ -161,3 +161,64 @@ footer a:hover {
     color: var(--secondary);
     text-decoration: underline;
 }
+
+.login-container {
+	display: flex;
+	justify-content: center;
+	padding: 2rem;
+}
+            
+.login-card {
+	background: white;
+	border-radius: 10px;
+	box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+	padding: 2rem;
+	width: 100%;
+	max-width: 350px;
+}
+
+.login-title {
+	color: #2A5470;
+	text-align: center;
+	margin-bottom: 1.5rem;
+	font-size: 1.3rem;
+}
+
+.login-field {
+	width: 100%;
+	padding: 10px 12px;
+	margin-bottom: 1.2rem;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	font-size: 0.95rem;
+}
+
+.login-btn {
+	width: 100%;
+	padding: 10px;
+	background: #2A5470;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	font-size: 1rem;
+	margin: 1rem 0;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.login-btn:hover {
+	background: #3a6a8c;
+}
+
+.home-link {
+	display: block;
+	text-align: center;
+	color: #2A5470;
+	font-size: 0.9rem;
+	margin-top: 1rem;
+	text-decoration: none;
+}
+
+.home-link:hover {
+	text-decoration: underline;
+}
