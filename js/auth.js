@@ -38,6 +38,32 @@ class AuthService {
         }
     }
 
+    login(username, password) {
+        fetch('/gestione_aule_progetto_scolastico/API/auth/token.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                clientId: username,
+                clientSecret: password
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.access_token) {
+                // Salva il token o esegui altre azioni
+                console.log('Login riuscito:', data.access_token);
+            } else {
+                // Gestisci errore
+                console.error('Errore login:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Errore di rete:', error);
+        });
+    }
+
     sanitizeInput(input) {
         // Basic input sanitization
         return input.replace(/[<>]/g, '');
