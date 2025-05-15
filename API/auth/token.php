@@ -1,5 +1,10 @@
 <?php
-require_once 'vendor/autoload.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../config/database.php'; // Modifica il percorso se necessario
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
@@ -10,6 +15,8 @@ class TokenController {
     private $lockoutTime = 900; // 15 minutes in seconds
     
     public function __construct() {
+        $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
+        $dotenv->load();
         $this->secretKey = getenv('JWT_SECRET_KEY');
         $this->algorithm = 'HS256';
         
@@ -21,23 +28,27 @@ class TokenController {
     }
 
     public function generateToken($clientId, $clientSecret) {
+        global $con;
         // Rate limiting check
         if ($this->isRateLimited($clientId)) {
             http_response_code(429);
             return json_encode(['error' => 'Too many attempts. Please try again later.']);
         }
 
-        // Validate client credentials
-        if (!$this->validateCredentials($clientId, $clientSecret)) {
+        // Recupera id utente e valida credenziali
+        $stmt = $con->prepare("SELECT id FROM utenti WHERE username = ? AND password = ?");
+        $stmt->execute([$clientId, hash('sha256', $clientSecret)]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$user) {
             $this->logFailedAttempt($clientId);
             http_response_code(401);
             return json_encode(['error' => 'Invalid credentials']);
         }
+        $userId = $user['id'];
 
         $issuedAt = time();
-        $expire = $issuedAt + 3600; // Token expires in 1 hour
-        $jti = bin2hex(random_bytes(16)); // Unique token ID
-
+        $expire = $issuedAt + 3600;
+        $jti = bin2hex(random_bytes(16));
         $payload = [
             'iss' => 'your-app-name',
             'aud' => $clientId,
@@ -45,18 +56,13 @@ class TokenController {
             'exp' => $expire,
             'jti' => $jti,
             'scope' => ['read', 'write'],
-            'nbf' => $issuedAt // Not before claim
+            'nbf' => $issuedAt
         ];
 
         try {
-            // Rotate keys if needed
             $this->rotateKeysIfNeeded();
-            
             $token = JWT::encode($payload, $this->secretKey, $this->algorithm);
-            
-            // Store token metadata for revocation if needed
-            $this->storeTokenMetadata($jti, $clientId, $expire);
-            
+            $this->storeTokenMetadata($jti, $userId, $expire);
             return json_encode([
                 'access_token' => $token,
                 'token_type' => 'Bearer',
@@ -85,26 +91,37 @@ class TokenController {
     }
 
     private function isRateLimited($clientId) {
-        // Implement rate limiting logic using Redis or similar
-        return false; // Placeholder
+        global $con;
+        $stmt = $con->prepare(
+            "SELECT COUNT(*) FROM login_attempts 
+            WHERE client_id = ? 
+            AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)"
+        );
+        $stmt->execute([$clientId]);
+        return $stmt->fetchColumn() >= $this->maxLoginAttempts;
     }
 
     private function logFailedAttempt($clientId) {
-        // Implement failed login attempt logging
+        global $con;
+        $stmt = $con->prepare(
+            "INSERT INTO login_attempts (client_id, ip_address) 
+            VALUES (?, ?)"
+        );
+        $stmt->execute([$clientId, $_SERVER['REMOTE_ADDR']]);
     }
 
     private function rotateKeysIfNeeded() {
         // Implement key rotation logic
     }
 
-    private function storeTokenMetadata($jti, $clientId, $expire) {
+    private function storeTokenMetadata($jti, $userId, $expire) {
         global $con;
         $issuedAt = time();
         $stmt = $con->prepare(
             "INSERT INTO jwt_tokens (user_id, access_token, jti, issued_at, expires_at) 
              VALUES (?, '', ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?))"
         );
-        $stmt->execute([$clientId, $jti, $issuedAt, $expire]);
+        $stmt->execute([$userId, $jti, $issuedAt, $expire]);
     }
 
     private function logError($message) {
@@ -112,8 +129,13 @@ class TokenController {
     }
 
     private function validateCredentials($clientId, $clientSecret) {
-        // Implement your credential validation logic here
-        return true; // Placeholder
+        global $con;
+        $stmt = $con->prepare(
+            "SELECT 1 FROM utenti 
+            WHERE id = ? AND password = ?"
+        );
+        $stmt->execute([$clientId, hash('sha256', $clientSecret)]);
+        return $stmt->rowCount() > 0;
     }
 
     private function revokeToken($jti) {
@@ -121,38 +143,26 @@ class TokenController {
         $stmt = $con->prepare("UPDATE jwt_tokens SET revoked = 1 WHERE jti = ?");
         $stmt->execute([$jti]);
     }
-}
-?>
-<?php
-    class TokenController {
-        private function isRateLimited($clientId) {
-                global $con;
-                $stmt = $con->prepare(
-                    "SELECT COUNT(*) FROM login_attempts 
-                    WHERE client_id = ? 
-                    AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)"
-                );
-                $stmt->execute([$clientId]);
-                return $stmt->fetchColumn() >= $this->maxLoginAttempts;
-            }
 
-            private function logFailedAttempt($clientId) {
-                global $con;
-                $stmt = $con->prepare(
-                    "INSERT INTO login_attempts (client_id, ip_address) 
-                    VALUES (?, ?)"
-                );
-                $stmt->execute([$clientId, $_SERVER['REMOTE_ADDR']]);
-            }
-
-            private function validateCredentials($clientId, $clientSecret) {
-                global $con;
-                $stmt = $con->prepare(
-                    "SELECT 1 FROM utenti 
-                    WHERE username = ? AND password = ?"
-                );
-                $stmt->execute([$clientId, hash('sha256', $clientSecret)]);
-                return $stmt->rowCount() > 0;
-        }
+    private function isTokenValid($jti) {
+        global $con;
+        $stmt = $con->prepare("SELECT revoked FROM jwt_tokens WHERE jti = ?");
+        $stmt->execute([$jti]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row && $row['revoked'] == 0;
     }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $clientId = $data['clientId'] ?? null;
+    $clientSecret = $data['clientSecret'] ?? null;
+    $controller = new TokenController();
+    header('Content-Type: application/json');
+    echo $controller->generateToken($clientId, $clientSecret);
+} else {
+    header('Content-Type: application/json');
+    http_response_code(405);
+    echo json_encode(['error' => 'Method Not Allowed']);
+}
 ?>
