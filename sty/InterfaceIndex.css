@@ -553,3 +553,96 @@ footer a:hover {
 .home-link:hover {
 	background: #e0e0e0;
 }
+.user-create-container {
+	max-width: 500px;
+	margin: 2rem auto;
+	padding: 2.5rem;
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.page-title {
+	color: #2A5470;
+	text-align: center;
+	margin-bottom: 2rem;
+	font-size: 1.8rem;
+}
+
+.create-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.form-group label {
+	font-weight: 500;
+	color: #2A5470;
+}
+
+.form-input {
+	padding: 0.8rem 1rem;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	font-size: 1rem;
+	transition: all 0.3s;
+}
+
+.form-input:focus {
+	border-color: #4B86B4;
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(75, 134, 180, 0.2);
+}
+
+.submit-btn {
+	background: #2A5470;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	padding: 1rem;
+	font-size: 1rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.3s;
+	margin-top: 1rem;
+}
+
+.submit-btn:hover {
+	background: #4B86B4;
+	transform: translateY(-2px);
+}
+
+.home-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: #2A5470;
+	text-decoration: none;
+	margin-top: 1.5rem;
+	padding: 0.8rem 1.5rem;
+	border-radius: 6px;
+	transition: all 0.3s;
+	background: #f0f0f0;
+}
+
+.home-link:hover {
+	background: #e0e0e0;
+}
+
+.admin-badge {
+	display: inline-block;
+	background: #FF6B6B;
+	color: white;
+	padding: 0.3rem 0.8rem;
+	border-radius: 50px;
+	font-size: 0.8rem;
+	margin-left: 0.5rem;
+	vertical-align: middle;
+}
+
