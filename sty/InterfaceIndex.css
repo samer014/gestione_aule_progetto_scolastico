@@ -222,3 +222,123 @@ footer a:hover {
 .home-link:hover {
 	text-decoration: underline;
 }
+
+.calendar-container {
+	max-width: 900px;
+	margin: 2rem auto;
+	padding: 1.5rem;
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.calendar-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1.5rem;
+}
+
+.month-nav {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.month-title {
+	font-size: 1.8rem;
+	color: #2A5470;
+	margin: 0;
+}
+
+.nav-btn {
+	background: #4B86B4;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+	transition: all 0.3s;
+}
+
+.nav-btn:hover {
+	background: #2A5470;
+}
+
+.nav-btn:disabled {
+	background: #cccccc;
+	cursor: not-allowed;
+}
+
+.calendar-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 1.5rem;
+}
+
+.calendar-table th {
+	background: #2A5470;
+	color: white;
+	padding: 0.8rem;
+	text-align: center;
+}
+
+.calendar-table td {
+	border: 1px solid #e0e0e0;
+	height: 60px;
+	vertical-align: top;
+	padding: 0.3rem;
+}
+
+.day-btn {
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	font-weight: bold;
+	transition: all 0.2s;
+	border-radius: 4px;
+	padding: 0.3rem;
+}
+
+.day-btn:hover:not(:disabled) {
+	background: #4B86B4;
+	color: white;
+}
+
+.day-btn:disabled {
+	color: #aaaaaa;
+	cursor: default;
+}
+
+.today {
+	background: #FF6B6B;
+	color: white;
+	border-radius: 50%;
+	width: 24px;
+	height: 24px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.footer-links {
+	text-align: center;
+	margin-top: 1.5rem;
+}
+
+.home-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: #2A5470;
+	text-decoration: none;
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	transition: all 0.3s;
+}
+
+.home-link:hover {
+	background: #f0f0f0;
+}
